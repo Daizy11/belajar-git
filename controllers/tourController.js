@@ -1,26 +1,7 @@
 const Tour = require('../models/tourModels');
-const APIFeatures = require('../utils/APIFeatures');
-const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-
-// const tours = JSON.parse(
-//   //convert json array to an object
-//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-// ); // patch for modify (update)
-
-// exports.checkId = (req, res, next, val) => {
-// console.log(`TOur id is ${val}`);
-// const id = req.params.id * 1;
-// const tour = tours.find(el => el.id === id);
-
-//   res.status(404).json({
-//       // if the return doesnt exist, express will send back the res but it still continue running the code
-//       status: 'fail', // return means the function will get return(it'll get finish) and wont go to the next function
-//       message: 'Invalid ID'
-//     });
-
-//   next();
-// };
+const AppError = require('../utils/appError');
+const factory = require('./handleFactory');
 
 //6). Alias
 exports.alias = (req, res, next) => {
@@ -30,99 +11,19 @@ exports.alias = (req, res, next) => {
   next();
 };
 
-exports.getAllTour = catchAsync(async (req, res, next) => {
-  //execute
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sorting()
-    .limitField()
-    .pagination();
-  const tours = await features.query;
-
-  // const tours = await (await Tour.find()
-  //   .where('duration')
-  //   .equals(5)
-  //   .where('difficulty')).equals('easy');
-
-  //send res
-  res.status(200).json({
-    status: 'success',
-    result: tours.length, //for specify the information for client
-    data: {
-      tours, //:tours = json parse
-    },
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  //:id is to define variable
-
-  const getTour = await Tour.findById(req.params.id);
-
-  if (!getTour) {
-    return next(new AppError('No Tour found in that ID', 404));
-  } // next() argument will jump straight to global error middleware
-  //Tour.findOne({_id:req.params.id})
-  res.status(200).json({
-    status: 'success',
-    data: {
-      getTour,
-    },
-  });
-});
+exports.getAllTour = factory.getAll(Tour);
 
 // const tour = tours.find(el => el.id === id); //loop through the array and in each of iteration,will have access to the current element.Will return true of false
 //find method will create an array which only contain element where the comparison turn out to be true
 //:x? if there is a question mark, it means optional
 // if(id>tours.length){
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
 
-exports.createTour = async (req, res, next) => {
-  try{
-    const newTour = await Tour.create(req.body);
-    console.log(newTour);
-    if (!newTour){
-      return next(new AppError('No Tour found in that ID', 404))
-    }
-   
-    // next() argument will jump straight to global error middleware
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tours: newTour,
-      },
-    });
-  }catch(err){
-    res.status(400).json({
-      status:"fail",
-      message:err.message
-    })
-  }
-};
+exports.createTour = factory.createOne(Tour);
 
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
+exports.updateTour = factory.updateOne(Tour);
 
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  await Tour.findByIdAndDelete(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  res.status(204).json({
-    //204 means no-content
-    message: 'success',
-    data: null,
-  });
-});
+exports.deleteTour = factory.deleteOne(Tour);
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
@@ -196,4 +97,78 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
       plan,
     },
   });
+});
+// /tour-within/:distance/center/:latlng/unit/:unit
+exports.getTourWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+
+  const [lat, lng] = latlng.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  console.log(radius);
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        'Please provide latitude and langitude in the format lnt and lng!',
+        400
+      )
+    );
+  }
+  const tour = await Tour.find({
+    //lng = garis bujur
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }, //find doc within certain geometry
+    //center sphere takes an array of cordinates and radius, mongo doenst take the radius, instead it expect a radius in special unit called radian
+  }); //find doc within a certain geometry
+  res.status(200).json({
+    status: 'Success',
+    result: tour.length,
+    data: {
+      data: tour,
+    },
+  });
+});
+
+exports.getDistances = catchAsync(async (req, res, next) => {
+  try {
+    const { latlng, unit } = req.params; //we do aggregation pipeline for calculation
+
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+    const [lat, lng] = latlng.split(',');
+    if (!lat || !lng) {
+      next(
+        new AppError(
+          'Please provide latitude and langitude in the format lnt and lng!',
+          400
+        )
+      );
+    }
+    const distances = await Tour.aggregate([
+      {
+        $geoNear: {
+          //require at least 1 field contain a geospatial index, if i have 2 geospatial index you need to use the keys parameter
+          near: {
+            type: 'Point',
+            coordinates: [lng * 1, lat * 1],
+          },
+          distanceField: 'distance',
+          distanceMultiplier: multiplier,
+        },
+      },
+      {
+        $project: {
+          distance: 1,
+          name: 1,
+        },
+      },
+    ]);
+    res.status(200).json({
+      status: 'Success',
+      result: distances.length,
+      data: {
+        data: distances,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });

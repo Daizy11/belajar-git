@@ -5,8 +5,14 @@ const app = require('./app');
 // console.log(app.get('env')); environtment is set by node and js itself globally
 dotenv.config({ path: './config.env' });
 // console.log(process.env)
+process.on('uncaughtException',err =>{
+  console.log('Uncaught Rejection!! Shutting DOwn');
+  console.log(err.name,err.message);
+    process.exit(1);
+})
 const db = process.env.DATABASE;
-mongoose
+
+ mongoose
   .connect(db, {
     useNewUrlParser: true, //its just some option in order to deal with deprecation warning
   })
@@ -27,5 +33,15 @@ console.log(process.env.NODE_ENV);
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
 });
+
+process.on('unhandledRejection', (err) => {
+  console.log(err.name,err.message);
+  console.log('Unhandle Rejection!! Shutting DOwn');
+
+    process.exit(1);
+});
+
+
+
 // config.env is for set the environtment, so we shouldn't have to write on terminal one by one
 //

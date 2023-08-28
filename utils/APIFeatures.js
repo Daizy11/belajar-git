@@ -3,7 +3,7 @@ class APIFeatures {
     this.query = query;
     this.queryString = queryString;
   }
-  
+
   filter() {
     //1) Filtering 127.0.0.1:3000/api/v1/tours?difficulty[gt]=easy&page=1&sort=1&limit=10
     //3dot means will take all the field out of the object
@@ -41,8 +41,8 @@ class APIFeatures {
   }
 
   pagination() {
-    const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 100;
+    const page = this.queryString.page * 1 || 1; //2 
+    const limit = this.queryString.limit * 1 || 100; //5
     const skip = (page - 1) * limit;
     // page 1 1-10, page 2 11-20,page 3 21-30
 

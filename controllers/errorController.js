@@ -12,6 +12,16 @@ const handleCastErrorDb = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`; //path = field yg error
   return new AppError(message, 400);
 };
+
+const handleValidationErrorDb = (err)=>{
+  const errors = Object.values(err.errors).map(el =>el.message) //to extract the message we have to use value.message
+  const message = `Invalid Input Data ${errors.join('. ')}`
+  return new AppError(message,400)
+}
+const handleTokenExpError = ()=> new AppError('Your token has expired! Please log in again',401)
+
+const handleJWTError = ()=> new AppError('Invalid Token. Please log in again',401) //unauthorized
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -48,7 +58,7 @@ module.exports = (err, req, res, next) => {
   //global error handling middleware
   err.statusCode = err.statusCode || 500; //internal server error
   err.status = err.status || 'error';
-  console.log(err)
+  // console.log(err)
   if (process.env.NODE_ENV === 'development') {
     console.log('entry dev')
     sendErrorDev(err, res);
@@ -58,7 +68,14 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'CastError') {
       error = handleCastErrorDb(error);
     }
+    if (error.name === 'CastError') error = handleCastErrorDb(error);
+    if (error.code === 11000) error = handleDuplicateFieldDb(error);
+    if (error.name === 'ValidationError') error = handleValidationErrorDb(error);
+    if (error.name === "JsonWebTokenError") error =handleJWTError()
+    if(error.name ==="TokenExpiredError") error = handleTokenExpError()
+
     sendErrorProd(error, res);
-   
   }
+   
+  
 };
