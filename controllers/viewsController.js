@@ -1,6 +1,11 @@
 const Tour = require('../models/tourModels');
 const catchAsync = require('../utils/catchAsync');
 const user = require('../models/userModel')
+const User = require('../models/userModel');
+const catchAsync = require('../utils/catchAsync');
+const user = require('../models/userModel');
+const AppError = require('../utils/appError');
+const booking = require('../models/bookingsModel');
 
 
 
@@ -21,7 +26,7 @@ exports.getOverview = catchAsync(async (req, res,next) => {
     }
 });
 
-exports.getTour = catchAsync(async(req, res) => {
+exports.getTour = catchAsync(async(req, res,next) => {
     // get the data, for requested tour (include review and guide )
   
     // const tour = factory.getOne({slug:req.params.slug},{path:'reviews',field:'review rating user'})
@@ -29,6 +34,10 @@ exports.getTour = catchAsync(async(req, res) => {
       path: 'reviews',
       fields: 'review rating user'
     });
+
+    if (!tour) {
+      return next(new AppError('There is no tour with that name.', 404));
+    }
     res.status(200).render('tour', {
       title: `${tour.name} tour`,
       tour
@@ -40,3 +49,37 @@ exports.login = (req,res)=>{
     title:"log into your account"
   });
 }
+
+
+exports.getAccount = (req,res)=>{
+  res.status(200).render('account',{
+    title:'Your account'
+  })
+},
+
+exports.updateUserData = catchAsync(async(req,res,next)=>{
+  const user = await User.findByIdAndUpdate(req.user.id,{
+    name:req.body.name,
+    email:req.body.email
+  },{
+    new:true,
+    runValidators:true
+  })
+  res.status(200).render('account',{
+    title:'Your account',
+    user:user
+  })
+})
+
+exports.getMyTours =catchAsync(async(req,res,next)=>{
+  // 1. find all booking
+  const bookings =await booking.find({user:req.user.id})
+  // 2. Find tours with return id
+  const tourIDs = bookings.map(el=>el.tour.id)
+  const tours = await Tour.find({_id:{$in:tourIDs}}) //select all tours that have an id in tourIDs array
+
+  res.status(200).render('overview',{
+    title:'My Tours',
+    tours
+  })
+})
