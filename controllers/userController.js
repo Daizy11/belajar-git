@@ -38,8 +38,6 @@ exports.deleteMe = catchAsync(async(req,res,next)=>{
     data:null
   })
 })
-const AppError = require('../utils/appError');
-const factory = require('./handleFactory');
 const multer = require('multer');
 const sharp = require('sharp')
 

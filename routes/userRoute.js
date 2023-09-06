@@ -4,23 +4,7 @@ const authController = require('../controllers/authController');
 
 const userRouter = express.Router();
 //users
-<<<<<<< HEAD
-  
-userRouter.post('/signup',authController.signup)
-userRouter.post('/login',authController.login)
 
-userRouter.use(authController.protect)
-userRouter.post('/forgotPassword',authController.forgotPassword)
-userRouter.patch('/resetPassword/:token',authController.resetPassword)
-
-userRouter.get("/me",userController.getMe,userController.getUsers)
-userRouter.patch('/updateMyPassword', authController.updatePassword)
-
-userRouter.patch('/updateMe', userController.updateMe)
-userRouter.delete('/deleteMe', userController.deleteMe)
-
-userRouter.use(authController.restrictTo('admin'))
-=======
 
 userRouter.post('/login', authController.login);
 userRouter.post('/signup', authController.signup);
@@ -42,7 +26,6 @@ userRouter.patch(
 userRouter.delete('/deleteMe', userController.deleteMe);
 
 userRouter.use(authController.restrictTo('admin'));
->>>>>>> 12c4885f (Initial commit)
 
 userRouter
   .route('/')
@@ -54,8 +37,5 @@ userRouter
   .patch(userController.updateUser)
   .delete(userController.deleteUser);
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 12c4885f (Initial commit)
 module.exports = userRouter;
