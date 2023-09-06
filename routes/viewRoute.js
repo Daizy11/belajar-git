@@ -1,13 +1,8 @@
 const express = require('express');
-<<<<<<< HEAD
-const viewController = require('../controllers/viewsController')
-const authController = require('../controllers/authController')
 
-=======
 const viewController = require('../controllers/viewsController');
 const authController = require('../controllers/authController');
 const bookingController = require('../controllers/bookingController');
->>>>>>> 12c4885f (Initial commit)
 const route = express.Router();
 
 // route.get('/overview', (req, res) => {
@@ -15,17 +10,7 @@ const route = express.Router();
 //     title: 'All Tour',
 //   });
 // });
-<<<<<<< HEAD
-route.use(authController.isLoggedIn)
 
-route.get('/tour/:slug',viewController.getTour);
-route.get('/',viewController.getOverview);
-route.get('/login',viewController.login)
-
-
-module.exports = route;
-
-=======
 
 route.get('/tour/:slug', authController.isLoggedIn, viewController.getTour);
 route.get(
@@ -45,4 +30,3 @@ route.post(
 );
 
 module.exports = route;
->>>>>>> 12c4885f (Initial commit)

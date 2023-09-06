@@ -54,11 +54,8 @@ router
   .patch(
     authController.protect,
     authController.restrictTo('admin'),
-<<<<<<< HEAD
-=======
     tourController.uploadTourImages,
     tourController.resizeTourImages,
->>>>>>> 12c4885f (Initial commit)
     tourController.updateTour
   )
   .delete(
