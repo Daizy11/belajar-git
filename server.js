@@ -2,6 +2,7 @@ const port = process.env.PORT || 3000;
 const dotenv = require('dotenv'); //environtment is not related to express, so we make it outside of app.js
 const mongoose = require('mongoose');
 const app = require('./app');
+
 // console.log(app.get('env')); environtment is set by node and js itself globally
 dotenv.config({ path: './config.env' });
 // console.log(process.env)
@@ -32,6 +33,7 @@ const db = process.env.DATABASE;
 console.log(process.env.NODE_ENV);
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
+ 
 });
 
 process.on('unhandledRejection', (err) => {

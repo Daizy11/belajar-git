@@ -7128,8 +7128,10 @@ if (mapBox) {
   (0, _mapBox.displayMap)(locations);
 }
 if (loginForm) {
+  console.log('test');
   loginForm.addEventListener('submit', function (e) {
     e.preventDefault();
+    console.log('masuk login');
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
     (0, _login.login)(email, password);
