@@ -207,7 +207,7 @@ exports.restrictTo = (...roles) => {
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
-  console.log(user);
+  // console.log(user);
   if (!user) {
     return next(new AppError('There is no user with email address.', 404));
   }
@@ -252,7 +252,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     .update(req.params.token)
     .digest('hex');
 
-  console.log('hashed token is...', hashedToken);
+  // console.log('hashed token is...', hashedToken);
 
   const user = await User.findOne({
     passwordResetToken: hashedToken,
@@ -267,7 +267,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
-  console.log(req.body.passwordConfirm);
+  // console.log(req.body.passwordConfirm);
   await user.save();
   //3. Update changePasswordAt Property for the user
 

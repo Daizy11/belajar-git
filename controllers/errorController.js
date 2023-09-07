@@ -71,7 +71,6 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error';
   // console.log(err)
   if (process.env.NODE_ENV === 'development') {
-    console.log('entry dev')
 
     sendErrorDev(err,req, res);
   } else if (process.env.NODE_ENV === 'production') {

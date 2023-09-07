@@ -21,7 +21,6 @@ exports.updateOne = (Model) =>
       new: true, // for show the new response of postman
       runValidators: true,
     });
-    console.log(req.body);
 
     if (!doc) {
       return next(new AppError('No doc found with that ID', 404));
@@ -38,7 +37,6 @@ exports.updateOne = (Model) =>
 exports.createOne = (Model) =>
   catchAsync(async (req, res) => {
     const doc = await Model.create(req.body);
-    console.log(req.body);
     res.status(201).json({
       status: 'success',
       data: {
