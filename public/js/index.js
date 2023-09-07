@@ -19,7 +19,6 @@ if(bookBTN){
   bookBTN.addEventListener('click',e =>{
     e.target.textContent = 'Processing'
     const {tourId} = e.target.dataset //element was clicked, data-tour-id's value on tour pug
-    console.log(tourId)
     bookTour(tourId)
   })
 }

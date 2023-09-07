@@ -7,7 +7,7 @@ export const bookTour = async (tourID) => {
     );
     // 1. Get checkout session from API
     const session = await fetch(
-      `http://127.0.0.1:3000/api/v1/bookings/checkout-session/${tourID}`
+      `/api/v1/bookings/checkout-session/${tourID}`
     ).then(function (response) {
       return response.json();
     })
