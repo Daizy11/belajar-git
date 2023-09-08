@@ -10,7 +10,7 @@ const hpp = require('hpp');
 const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const compression = require('compression')
+const compression = require('compression');
 const viewRoute = require('./routes/viewRoute');
 const tourRouter = require('./routes/tourRoute');
 const userRouter = require('./routes/userRoute');
@@ -19,6 +19,7 @@ const globalError = require('./controllers/errorController');
 const reviewRouter = require('./routes/reviewRoute');
 
 const bookingsRouter = require('./routes/bookingsRoute');
+const bookingsController = require('./controllers/bookingController');
 
 const app = express();
 app.use(cookieParser());
@@ -107,11 +108,16 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many request from this IP,please try again in an hour!',
 });
-app.use(compression())
+app.use(compression());
 
 //limit request for same API
 app.use('/api', limiter);
 
+app.post(
+  'webhook-checkout',
+  express.raw({ type: 'application/json' }), // get data from stripe
+  bookingsController.webhookCheckout
+);
 //body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 
