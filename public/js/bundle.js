@@ -6936,7 +6936,7 @@ var bookTour = /*#__PURE__*/function () {
           _context.prev = 0;
           stripe = Stripe('pk_test_51NmfEyAud4S6ER4emv2nO0hFMCoYfAvT5BKOA0OWWpjTpxAnfkEpbNCdA61DbDf5BrCAhkrOoVcFqvKbxEp7JO1n00rFE4WgRf'); // 1. Get checkout session from API
           _context.next = 4;
-          return fetch("/api/v1/bookings/checkout-session/".concat(tourID)).then(function (response) {
+          return fetch("http://127.0.0.1:3000/api/v1/bookings/checkout-session/".concat(tourID)).then(function (response) {
             return response.json();
           });
         case 4:
