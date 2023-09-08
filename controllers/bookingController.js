@@ -5,11 +5,11 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
 const Stripe = require('stripe');
-
+let stripe;
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1 Create the currently book tour
 
-  const stripe = Stripe(process.env.STRIPE_SECTRET);
+  stripe = Stripe(process.env.STRIPE_SECTRET);
   const tour = await Tour.findById(req.params.tourID);
   //2) create checkout session
   const session = await stripe.checkout.sessions.create({
