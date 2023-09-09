@@ -100,9 +100,9 @@ app.use('/api', limiter);
 app.post('/webhook-checkout', express.json({type: 'application/json'}), // get data from stripe
 bookingsController.webhookCheckout
 );
-app.use(bodyParser.json())
 //body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(bodyParser.json())
 
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); // parse data from url client side(form)
 
