@@ -70,11 +70,13 @@ if(userPasswordForm){
 
 if (logOutBtn) logOutBtn.addEventListener('click',logout) 
 
-if(bookBTN)
+if(bookBTN){
   bookBTN.addEventListener('click',e =>{
     e.target.textContent = 'Processing'
     const {tourId} = e.target.dataset //element was clicked, data-tour-id's value on tour pug
     bookTour(tourId)
   })
+
+}
   const alertMessage = document.querySelector('body').dataset.alert;
   if (alertMessage) showAlert('success', alertMessage, 20);
