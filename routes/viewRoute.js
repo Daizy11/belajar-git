@@ -9,7 +9,7 @@ const route = express.Router();
 //     title: 'All Tour',
 //   });
 // });
-
+route.use(viewController.alert)
 
 route.get('/tour/:slug', authController.isLoggedIn, viewController.getTour);
 route.get(

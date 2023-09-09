@@ -93,7 +93,7 @@ const limiter = rateLimit({
   message: 'Too many request from this IP,please try again in an hour!',
 });
 app.use(compression());
-
+app.use(bodyParser.json())
 //limit request for same API
 app.use('/api', limiter);
 

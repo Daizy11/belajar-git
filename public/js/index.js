@@ -4,6 +4,7 @@ import '@babel/polyfill';
 import { displayMap } from './mapBox';
 import {updateSettings} from './updateSettings'
 import {bookTour} from './stripe'
+import { showAlert } from './alerts';
 
 //DOM ELEMENT
 const mapBox = document.getElementById('map');
@@ -15,13 +16,7 @@ const bookBTN = document.getElementById('book-tour')
 
 
 //DELEGATION
-if(bookBTN){
-  bookBTN.addEventListener('click',e =>{
-    e.target.textContent = 'Processing'
-    const {tourId} = e.target.dataset //element was clicked, data-tour-id's value on tour pug
-    bookTour(tourId)
-  })
-}
+
 if (mapBox) {
   const locations = JSON.parse(mapBox.dataset.locations);
   displayMap(locations);
@@ -73,4 +68,13 @@ if(userPasswordForm){
   })
 }
 
-if (logOutBtn) logOutBtn.addEventListener('click',logout)
+if (logOutBtn) logOutBtn.addEventListener('click',logout) 
+
+if(bookBTN)
+  bookBTN.addEventListener('click',e =>{
+    e.target.textContent = 'Processing'
+    const {tourId} = e.target.dataset //element was clicked, data-tour-id's value on tour pug
+    bookTour(tourId)
+  })
+  const alertMessage = document.querySelector('data-alert')
+  if(alert) showAlert('success',alertMessage,20)

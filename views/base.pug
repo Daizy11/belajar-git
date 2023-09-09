@@ -10,7 +10,8 @@ html
             title Natours | #{title}
     //-  (-)const x = 9 //declare variable
     //- h2=data = pass value, #{} for template string
-    body 
+
+    body(data-alert=`${alert ? alert :}`) 
         //HEADER
         include _header 
         //Content 
