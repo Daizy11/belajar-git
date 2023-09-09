@@ -102,7 +102,6 @@ bookingsController.webhookCheckout
 );
 //body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
-app.use(bodyParser.json())
 
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); // parse data from url client side(form)
 
