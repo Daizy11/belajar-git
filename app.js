@@ -96,6 +96,7 @@ app.use(compression());
 
 //limit request for same API
 app.use('/api', limiter);
+app.use(bodyParser.json())
 
 app.post('/webhook-checkout', express.json({type: 'application/json'}), // get data from stripe
 bookingsController.webhookCheckout
