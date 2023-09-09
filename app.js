@@ -104,7 +104,6 @@ app.use(
   fontSrc: ["'self'", ...fontSrcUrls]
 },*/
 
-app.use(bodyParser.json());
 //1. Global Middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -123,7 +122,7 @@ app.use(compression());
 app.use('/api', limiter);
 
 app.post(
-  '/webhook-checkout',bodyParser.raw({ type: 'application/json' }), // get data from stripe
+  '/webhook-checkout',express.raw({ type: 'application/json' }), // get data from stripe
   bookingsController.webhookCheckout
 );
 //body parser, reading data from body into req.body
