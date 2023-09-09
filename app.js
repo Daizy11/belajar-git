@@ -35,13 +35,22 @@ app.use(
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const scriptSrcUrls = ['https://unpkg.com/', 'https://tile.openstreetmap.org'];
+const scriptSrcUrls = [
+  'https://unpkg.com/',
+  'https://tile.openstreetmap.org',
+  'https://*.stripe.com',
+];
 const styleSrcUrls = [
   'https://unpkg.com/',
   'https://tile.openstreetmap.org',
   'https://fonts.googleapis.com/',
 ];
-const connectSrcUrls = ['https://unpkg.com', 'https://tile.openstreetmap.org'];
+const connectSrcUrls = [
+  'https://unpkg.com',
+  'https://tile.openstreetmap.org',
+  'ws://localhost:1234/',
+  'https://*.stripe.com',
+];
 const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 app.use(
   helmet({
@@ -60,7 +69,7 @@ app.use(
           'https://*.cloudflare.com',
           ...scriptSrcUrls,
         ],
-        frameSrc: ["'self'", 'https://js.stripe.com'],
+        frameSrc: ["'self'", 'https://js.stripe.com', 'https:', 'data:'],
         objectSrc: ["'none'"],
         styleSrc: ["'self'", 'https:', "'unsafe-inline'", ...styleSrcUrls],
         workerSrc: ["'self'", 'data:', 'blob:', 'https://m.stripe.network'],
@@ -114,8 +123,7 @@ app.use(compression());
 app.use('/api', limiter);
 
 app.post(
-  'webhook-checkout',
-  express.raw({ type: 'application/json' }), // get data from stripe
+  '/webhook-checkout',bodyParser.raw({ type: 'application/json' }), // get data from stripe
   bookingsController.webhookCheckout
 );
 //body parser, reading data from body into req.body
