@@ -1,12 +1,14 @@
+const booking = require('../models/bookingsModel');
 const Tour = require('../models/tourModels');
 const User = require('../models/userModel');
-const Stripe = require('stripe');
-const booking = require('../models/bookingsModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 const factory = require('./handleFactory');
+const Stripe = require('stripe');
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1 Create the currently book tour
+
   const stripe = Stripe(process.env.STRIPE_SECTRET);
   const tour = await Tour.findById(req.params.tourID);
   //2) create checkout session
@@ -26,12 +28,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
           product_data: {
             name: `${tour.name} Tour`,
             description: tour.summary,
-            images:
-              process.env.NODE_ENV === 'development'
-                ? [`https://www.natours.dev/img/tours/${tour.imageCover}`]
-                : [
-                    `${req.protocol}://127.0.0.1:3000/img/tours/${tour.imageCover}`,
-                  ],
+            images: [
+              `${req.protocol}://127.0.0.1:3000/img/tours/${tour.imageCover}`
+            ],
           },
         },
       },
@@ -59,27 +58,25 @@ const createBookingCheckout = async (session) => {
   const user = (await User.findOne({ email: session.customer_email }))._id;
   const price = session.amount_total / 100;
   await booking.create({ tour, user, price });
-  console.log('bookingController');
 };
-exports.webhookCheckout = catchAsync(async (req, res, next) => {
-  const sig = request.headers['stripe-signature'];
+
+exports.webhookCheckout =catchAsync(async (req, res, next) => {
   let event;
-  const stripe = Stripe(process.env.STRIPE_SECTRET);
-  console.log('masukkk');
-  try {
+  try { 
+    const signature = req.headers['stripe-signature'];
+    const stripe = Stripe(process.env.STRIPE_SECTRET);
+    console.log('test')
     event = stripe.webhooks.constructEvent(
       req.body,
-      sig,
+      signature,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-
-    console.log(event);
   } catch (err) {
-    consolr.log(err);
     return res.status(400).send(`Webhook error:${err.message}`);
   }
+  console.log(event)
   if (event.type === 'checkout.session.completed')
-    await createBookingCheckout(event.data.object);
+   await createBookingCheckout(event.data.object);
 
   res.status(200).json({ received: true });
 });

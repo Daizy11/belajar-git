@@ -31,6 +31,7 @@ app.use(
     credentials: true,
   })
 );
+app.options('*', cors());
 //serving static file
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -52,47 +53,22 @@ const connectSrcUrls = [
   'https://*.stripe.com',
 ];
 const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+
 app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
-        baseUri: ["'self'"],
-        fontSrc: ["'self'", 'https:', 'data:', ...fontSrcUrls],
-        scriptSrc: [
-          "'self'",
-          'https:',
-          'http:',
-          'blob:',
-          'https://js.stripe.com',
-          'https://m.stripe.network',
-          'https://*.cloudflare.com',
-          ...scriptSrcUrls,
-        ],
-        frameSrc: ["'self'", 'https://js.stripe.com', 'https:', 'data:'],
-        objectSrc: ["'none'"],
-        styleSrc: ["'self'", 'https:', "'unsafe-inline'", ...styleSrcUrls],
-        workerSrc: ["'self'", 'data:', 'blob:', 'https://m.stripe.network'],
-        childSrc: ["'self'", 'blob:'],
-        imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-        formAction: ["'self'"],
-        connectSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          'data:',
-          'blob:',
-          'https://*.stripe.com',
-          'https://*.cloudflare.com/',
-          'https://bundle.js:*',
-          'ws://127.0.0.1:*/',
-          ...connectSrcUrls,
-        ],
-        upgradeInsecureRequests: [],
-      },
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", 'blob:', 'https://*.stripe.com'],
+      objectSrc: [],
+      imgSrc: ["'self'", 'blob:', 'data:', 'https:', 'https://*.stripe.com'],
+      fontSrc: ["'self'", ...fontSrcUrls],
+      frameSrc: ["'self'", 'https://*.stripe.com'],
     },
   })
 );
-
 /* directives: {
   defaultSrc: [],
   connectSrc: ["'self'", ...connectSrcUrls],
@@ -121,10 +97,10 @@ app.use(compression());
 //limit request for same API
 app.use('/api', limiter);
 
-app.post(
-  '/webhook-checkout',express.raw({ type: 'application/json' }), // get data from stripe
-  bookingsController.webhookCheckout
+app.post('/webhook-checkout', express.json({type: 'application/json'}), // get data from stripe
+bookingsController.webhookCheckout
 );
+app.use(bodyParser.json())
 //body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 
