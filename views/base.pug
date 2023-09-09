@@ -11,7 +11,7 @@ html
     //-  (-)const x = 9 //declare variable
     //- h2=data = pass value, #{} for template string
 
-    body(data-alert=`${alert ? alert :}`) 
+    body(data-alert=`${alert ? alert : ''}`) 
         //HEADER
         include _header 
         //Content 
