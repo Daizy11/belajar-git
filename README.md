@@ -1,3 +1,3 @@
 # Natours
 
-Demo : https://natours-production-006d.up.railway.app/login
+Demo : https://natours-production-006d.up.railway.app
