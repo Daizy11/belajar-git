@@ -123,7 +123,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // Grand Access to protect route
   req.user = currentUser; //put stuff on req.user can pass one middleware to another middleware
-  res.locals.user = currentUser;
+  res.locals.user = currentUser; //pass data to fronend side (in this case, i use pug)
   next();
 });
 //only for rendered pages,no errors
