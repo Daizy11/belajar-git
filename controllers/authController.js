@@ -124,6 +124,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   // Grand Access to protect route
   req.user = currentUser; //req.user can pass one middleware to another middleware (for authentication and Strategies)
   res.locals.user = currentUser; //pass data within the same request-response cycle (in this case, pass data to pug)
+  // the base is req.locals, it named req.locals.user because it user-related information
   next();
 });
 //only for rendered pages,no errors
