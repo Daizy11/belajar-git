@@ -1,89 +1,103 @@
-const Tour = require('../models/tourModels');
-const catchAsync = require('../utils/catchAsync');
-const User = require('../models/userModel');
-const AppError = require('../utils/appError');
-const booking = require('../models/bookingsModel');
+import Tour from "../models/tourModel.js";
+import User from "../models/userModel.js";
+import Booking from "../models/bookingModel.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
 
-exports.getOverview = catchAsync(async (req, res, next) => {
-  try {
-    const tours = await Tour.find();
-    //2, Build Template
-    //3, Render that tamplate using tour data from 1
+export const alerts = (req, res, next) => {
+  const { alert } = req.query;
+  if (alert === "booking")
+    res.locals.alert =
+      "Your booking was successful! Please check your email for a confirmation. If your booking doesn't show up here immediatly, please come back later.";
+  next();
+};
 
-    res.status(200).render('overview', {
-      title: 'The Forest Hiker Tour',
-      tours,
-      //1. GEt Tour Data Form collection
-    });
-  } catch (err) {
-    console.log(err);
-  }
+export const getOverview = catchAsync(async (req, res, next) => {
+  // 1) Get tour data from collection
+  const tours = await Tour.find();
+
+  // 2) Build template
+  // 3) Render that template using tour data from 1)
+  res.status(200).render("overview", {
+    title: "All Tours",
+    tours
+  });
 });
 
-exports.getTour = catchAsync(async (req, res, next) => {
-  // get the data, for requested tour (include review and guide )
-
-  // const tour = factory.getOne({slug:req.params.slug},{path:'reviews',field:'review rating user'})
+export const getTour = catchAsync(async (req, res, next) => {
+  // 1) Get the data, for the requested tour (including reviews and guides)
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
-    path: 'reviews',
-    fields: 'review rating user',
+    path: "reviews",
+    fields: "review rating user"
   });
 
   if (!tour) {
-    return next(new AppError('There is no tour with that name.', 404));
+    return next(new AppError("There is no tour with that name.", 404));
   }
-  res.status(200).render('tour', {
-    title: `${tour.name} tour`,
-    tour,
+
+  // 2) Build template
+  // 3) Render template using data from 1)
+  res.status(200).render("tour", {
+    title: `${tour.name} Tour`,
+    tour
   });
 });
 
-exports.login = (req, res) => {
-  res.status(200).render('login', {
-    title: 'log into your account',
+export const getSingupForm = (req, res) => {
+  res.status(200).render("signup", {
+    title: "create your account!"
   });
 };
 
-(exports.getAccount = (req, res) => {
-  res.status(200).render('account', {
-    title: 'Your account',
+export const getLoginForm = (req, res) => {
+  res.status(200).render("login", {
+    title: "Log into your account"
   });
-}),
-  (exports.updateUserData = catchAsync(async (req, res, next) => {
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      {
-        name: req.body.name,
-        email: req.body.email,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    res.status(200).render('account', {
-      title: 'Your account',
-      user: user,
+};
+
+export const getAccount = (req, res) => {
+  res.status(200).render("account", {
+    title: "Your account"
+  });
+};
+
+export const getMyTours = catchAsync(async (req, res, next) => {
+  // 1) Find all bookings
+  const bookings = await Booking.find({ user: req.user.id });
+
+  // 2) Find tours with the returned IDs
+  const tourIDs = bookings.map(el => el.tour);
+  const tours = await Tour.find({ _id: { $in: tourIDs } });
+
+  if (bookings.length === 0) {
+    res.status(200).render("nullbooking", {
+      title: "Book Tours",
+      headLine: `You haven't booked any tours yet!`,
+      msg: `Please book a tour and come back. 🙂`
     });
-  }));
-
-exports.getMyTours = catchAsync(async (req, res, next) => {
-  // 1. find all booking
-  const bookings = await booking.find({ user: req.user.id });
-  // 2. Find tours with return id
-  const tourIDs = bookings.map((el) => el.tour);
-  const tours = await Tour.find({ _id: { $in: tourIDs } }); //select all tours that have an id in tourIDs array
-  res.status(200).render('overview', {
-    title: 'My Tours',
-    tours,
-  });
+  } else {
+    res.status(200).render("overview", {
+      title: "My Tours",
+      tours
+    });
+  }
 });
 
-exports.alert = (req, res, next) => {
-  const { alert } = req.query;
-  if (alert === 'booking')
-    res.locals.alert =
-      "Your booking was successdull, please check your email for confirmation. If your booking doesn't show up immediateky, please come back later";
-  
-  next()
-};
+export const updateUserData = catchAsync(async (req, res, next) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      name: req.body.name,
+      email: req.body.email
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+
+  res.status(200).render("account", {
+    title: "Your account",
+    user: updatedUser
+  });
+});

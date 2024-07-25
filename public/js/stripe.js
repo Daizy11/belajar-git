@@ -1,24 +1,22 @@
-import { showAlert } from './alerts';
+/* eslint-disable */
 
-export const bookTour = async (tourID) => {
+import axios from "axios";
+import { showAlert } from "./alerts";
+
+const stripe = Stripe('pk_test_51NJCPDSJto3yYpNWpRGuE7Se7jfLa0G10MKeWh8hPWAzBWpP1tCa3CJIHbTdQ9MeBYNx60CemDFdHmJ1goU9sQcC00M4w3GJ1Y');
+
+export const bookTour = async tourId => {
   try {
-    const stripe = Stripe(
-      'pk_test_51NmfEyAud4S6ER4emv2nO0hFMCoYfAvT5BKOA0OWWpjTpxAnfkEpbNCdA61DbDf5BrCAhkrOoVcFqvKbxEp7JO1n00rFE4WgRf'
-    );
-    // 1. Get checkout session from API
-    const session = await fetch(
-      `/api/v1/bookings/checkout-session/${tourID}`
-    ).then(function (response) {
-      return response.json();
-    })
+    // 1) Get checkout session from API
+    const session = await axios(`/api/v1/bookings/checkout-session/${tourId}`);
+    // console.log(session);
 
-    console.log(session);
-    // 2. create checkout form + change credit card
+    // 2) Create checkout form + charge credit card
     await stripe.redirectToCheckout({
-      sessionId: session.session.id,
+      sessionId: session.data.session.id
     });
   } catch (err) {
     console.log(err);
-    showAlert('error', err);
+    showAlert("error", err);
   }
 };
